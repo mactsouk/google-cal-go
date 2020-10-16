@@ -107,18 +107,16 @@ func main() {
 
 	go func() {
 		for {
-			var events float64 = 0
-
 			t := time.Now().Format(time.RFC3339)
 			events, err := srv.Events.List("primary").ShowDeleted(false).SingleEvents(true).TimeMin(t).MaxResults(10).OrderBy("startTime").Do()
 			if err != nil {
 				log.Fatalf("Unable to retrieve next ten of the user's events: %v", err)
 			}
 
-			events := len(events.Items)
+			total := float64(len(events.Items))
 
 			// Set Prometheus metrics
-			nEvents.Set(events)
+			nEvents.Set(total)
 			time.Sleep(time.Minute)
 		}
 	}()
