@@ -94,16 +94,16 @@ func main() {
         if err != nil {
                 log.Fatalf("Unable to retrieve next ten of the user's events: %v", err)
         }
-        fmt.Println("Upcoming events:")
         if len(events.Items) == 0 {
                 fmt.Println("No upcoming events found.")
         } else {
+				fmt.Println("Number of upcoming events:", len(events.Items))
                 for _, item := range events.Items {
                         date := item.Start.DateTime
                         if date == "" {
                                 date = item.Start.Date
                         }
-                        fmt.Printf("%v (%v)\n", item.Summary, date)
+                        fmt.Printf("* %v (%v)\n", item.Summary, date)
                 }
         }
 }
