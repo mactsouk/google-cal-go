@@ -1,5 +1,5 @@
-# docker build -t pro-gmail .
-# docker run -it -p 2345:2345 pro-gmail
+# docker build -t gcal- .
+# docker run -it -p 2345:2345 gcal
 
 FROM golang:alpine AS builder
 

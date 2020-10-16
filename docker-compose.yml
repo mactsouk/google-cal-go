@@ -2,8 +2,8 @@ version: "3"
 
 services:
   pro-gmail:
-    image: pro-gmail
-    container_name: Gmail
+    image: gcal
+    container_name: gcal
     restart: always
     ports:
       - 2345:2345
@@ -46,17 +46,6 @@ services:
       - monitoring
     volumes:
       - ./grafana_data/:/var/lib/grafana/
-  alert-manager:
-    image: prom/alertmanager:latest
-    container_name: alertmanager
-    depends_on:
-      - prometheus
-    restart: always
-    networks:
-      - monitoring
-    ports:
-      - 9093:9093
-      - 9094:9094
 
 volumes:
     grafana_data: {}
