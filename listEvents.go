@@ -9,24 +9,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
-)
-
-// PORT is the TCP port number the server will listen to
-var PORT = ":2345"
-
-var (
-	nEvents = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Namespace: "GCALENDAR",
-			Name:      "number_of_upcoming_events",
-			Help:      "This is the number of upcoming events",
-		})
 )
 
 // Retrieve a token, saves the token, then returns the generated client.
@@ -97,33 +83,27 @@ func main() {
 	}
 	client := getClient(config)
 
-	http.Handle("/metrics", promhttp.Handler())
-	prometheus.MustRegister(nEvents)
-
 	srv, err := calendar.New(client)
 	if err != nil {
 		log.Fatalf("Unable to retrieve Calendar client: %v", err)
 	}
 
-	go func() {
-		for {
-			var events float64 = 0
-
-			t := time.Now().Format(time.RFC3339)
-			events, err := srv.Events.List("primary").ShowDeleted(false).SingleEvents(true).TimeMin(t).MaxResults(10).OrderBy("startTime").Do()
-			if err != nil {
-				log.Fatalf("Unable to retrieve next ten of the user's events: %v", err)
+	t := time.Now().Format(time.RFC3339)
+	events, err := srv.Events.List("primary").ShowDeleted(false).
+		SingleEvents(true).TimeMin(t).MaxResults(10).OrderBy("startTime").Do()
+	if err != nil {
+		log.Fatalf("Unable to retrieve next ten of the user's events: %v", err)
+	}
+	if len(events.Items) == 0 {
+		fmt.Println("No upcoming events found.")
+	} else {
+		fmt.Println("Number of upcoming events:", len(events.Items))
+		for _, item := range events.Items {
+			date := item.Start.DateTime
+			if date == "" {
+				date = item.Start.Date
 			}
-
-			events := len(events.Items)
-
-			// Set Prometheus metrics
-			nEvents.Set(events)
-			time.Sleep(time.Minute)
+			fmt.Printf("* %v (%v)\n", item.Summary, date)
 		}
-	}()
-
-	log.Println("Listening to port", PORT)
-	log.Println(http.ListenAndServe(PORT, nil))
-
+	}
 }
