@@ -1,4 +1,4 @@
-# docker build -t gcal- .
+# docker build -t gcal .
 # docker run -it -p 2345:2345 gcal
 
 FROM golang:alpine AS builder
@@ -8,10 +8,10 @@ FROM golang:alpine AS builder
 RUN apk update && apk add --no-cache git
 
 RUN mkdir /pro
-ADD ./gConnect.go /pro/
+ADD ./gCal.go /pro/
 WORKDIR /pro
 RUN go get -d -v ./...
-RUN go build -o server gConnect.go
+RUN go build -o server gCal.go
 
 FROM alpine:latest
 
