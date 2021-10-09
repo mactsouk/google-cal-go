@@ -7,12 +7,14 @@ FROM golang:alpine AS builder
 # Git is required for fetching the dependencies.
 RUN apk update && apk add --no-cache git
 
+RUN mkdir $GOPATH/src/server
 RUN mkdir /pro
+ADD ./gCal.go $GOPATH/src/server
+WORKDIR $GOPATH/src/server
 ADD ./gCal.go /pro/
-WORKDIR /pro
 RUN go mod init
 RUN go mod tidy
-RUN go build -o server gCal.go
+RUN go build -o /pro/server gCal.go
 
 FROM alpine:latest
 
@@ -23,3 +25,4 @@ COPY --from=builder /pro/server /pro/server
 EXPOSE 2348
 WORKDIR /pro
 CMD ["/pro/server"]
+
