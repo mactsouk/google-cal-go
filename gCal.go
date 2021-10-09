@@ -117,6 +117,7 @@ func main() {
 
 			// Set Prometheus metrics
 			nEvents.Set(total)
+			fmt.Println("Events:", total)
 			time.Sleep(time.Minute)
 		}
 	}()

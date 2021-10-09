@@ -10,7 +10,8 @@ RUN apk update && apk add --no-cache git
 RUN mkdir /pro
 ADD ./gCal.go /pro/
 WORKDIR /pro
-RUN go get -d -v ./...
+RUN go mod init
+RUN go mod tidy
 RUN go build -o server gCal.go
 
 FROM alpine:latest
@@ -19,6 +20,6 @@ RUN mkdir /pro
 ADD ./credentials.json /pro/
 ADD ./token.json /pro/
 COPY --from=builder /pro/server /pro/server
-EXPOSE 2345
+EXPOSE 2348
 WORKDIR /pro
 CMD ["/pro/server"]
